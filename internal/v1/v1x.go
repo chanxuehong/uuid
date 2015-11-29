@@ -15,7 +15,7 @@ import (
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //   |                          time_low                             |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//   |       time_mid                |         time_hi_and_pid_hi    |
+//   |       time_mid                |        time_hi_and_pid_low    |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //   |clk_seq_hi_pid |  clk_seq_low  |         node (0-1)            |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -81,7 +81,7 @@ func Newx() (uuid [16]byte) {
 	uuid[4] = byte(timestamp >> 40)
 	uuid[5] = byte(timestamp >> 32)
 
-	// time_hi_and_pid_hi
+	// time_hi_and_pid_low
 	uuid[6] = byte(timestamp >> 52)
 	uuid[7] = byte(timestamp>>48) << 4
 	uuid[7] |= pid & 0x0F // pid, 4bits
