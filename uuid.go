@@ -25,7 +25,7 @@ func NewV1() UUID {
 }
 
 // NewV5 returns a STANDARD version 5 UUID.
-func NewV5(ns UUID, name string) UUID {
+func NewV5(ns UUID, name []byte) UUID {
 	return v5.New(ns, name)
 }
 
