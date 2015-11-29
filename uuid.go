@@ -37,3 +37,27 @@ func NewV1x() UUID {
 func (uuid UUID) Version() byte {
 	return uuid[6] >> 4
 }
+
+func (uuid UUID) HexEncode() []byte {
+	return HexEncode(uuid)
+}
+
+// Encode encodes UUID to "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" format.
+func (uuid UUID) Encode() []byte {
+	return Encode(uuid)
+}
+
+// String returns "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" format.
+func (uuid UUID) String() string {
+	return string(Encode(uuid))
+}
+
+// Decode decodes data with "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" format into UUID.
+func (uuid *UUID) Decode(data []byte) (err error) {
+	u, err := Decode(data)
+	if err != nil {
+		return
+	}
+	*uuid = u
+	return
+}
