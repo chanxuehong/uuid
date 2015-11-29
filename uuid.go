@@ -18,6 +18,12 @@ import (
 
 type UUID [16]byte
 
+// NewV1 returns a STANDARD version 1 UUID.
 func NewV1() UUID {
 	return v1.New()
+}
+
+// NewV1x returns a NONSTANDARD UUID(lower probability of conflict).
+func NewV1x() UUID {
+	return v1.Newx()
 }
