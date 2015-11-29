@@ -2,6 +2,7 @@ package uuid
 
 import (
 	"github.com/chanxuehong/uuid/internal/v1"
+	"github.com/chanxuehong/uuid/internal/v5"
 )
 
 //   0                   1                   2                   3
@@ -23,7 +24,16 @@ func NewV1() UUID {
 	return v1.New()
 }
 
+// NewV5 returns a STANDARD version 5 UUID.
+func NewV5(ns UUID, name string) UUID {
+	return v5.New(ns, name)
+}
+
 // NewV1x returns a NONSTANDARD UUID(lower probability of conflict).
 func NewV1x() UUID {
 	return v1.Newx()
+}
+
+func (uuid UUID) Version() byte {
+	return uuid[6] >> 4
 }
