@@ -27,7 +27,7 @@ func hash(x uint64) uint64 {
 	return (x ^ x>>6 ^ x>>12 ^ x>>18 ^ x>>24 ^ x>>30 ^ x>>36 ^ x>>42 ^ x>>48 ^ x>>54 ^ x>>60) & 0x3f
 }
 
-var xNode = internal.MAC[:]
+var xNode = internal.MAC[:] // read only.
 
 const xSequenceMask uint32 = 0x3FFF // 14bits
 
@@ -42,12 +42,13 @@ var (
 func Newx() (uuid [16]byte) {
 	var (
 		timestamp = uuidTimestamp()
-		sequence  = gxSequenceStart
+		sequence  uint32
 	)
 
 	gxMutex.Lock() // Lock
 	switch {
 	case timestamp > gxLastTimestamp:
+		sequence = gxSequenceStart
 		gxLastTimestamp = timestamp
 		gxLastSequence = sequence
 		gxMutex.Unlock() // Unlock

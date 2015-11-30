@@ -19,7 +19,7 @@ import (
 //   |                         node (2-5)                            |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-var node = internal.MAC[:]
+var node = internal.MAC[:] // read only.
 
 const sequenceMask uint32 = 0x3FFF // 14bits
 
@@ -34,12 +34,13 @@ var (
 func New() (uuid [16]byte) {
 	var (
 		timestamp = uuidTimestamp()
-		sequence  = gSequenceStart
+		sequence  uint32
 	)
 
 	gMutex.Lock() // Lock
 	switch {
 	case timestamp > gLastTimestamp:
+		sequence = gSequenceStart
 		gLastTimestamp = timestamp
 		gLastSequence = sequence
 		gMutex.Unlock() // Unlock
