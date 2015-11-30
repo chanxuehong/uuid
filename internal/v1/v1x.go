@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"crypto/sha1"
-	"encoding/binary"
 	"os"
 	"sync"
 
@@ -22,13 +20,11 @@ import (
 //   |                         node (2-5)                            |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-var pid byte // lowest byte of pid sha1-sum.
+var pid = byte(hash(uint64(os.Getpid()))) // 6-bit hash of os.Getpid()
 
-func init() {
-	data := make([]byte, 8)
-	binary.BigEndian.PutUint64(data, uint64(os.Getpid()))
-	hashsum := sha1.Sum(data)
-	pid = hashsum[len(hashsum)-1]
+// hash uint64 to a 6-bit integer value.
+func hash(x uint64) uint64 {
+	return (x ^ x>>6 ^ x>>12 ^ x>>18 ^ x>>24 ^ x>>30 ^ x>>36 ^ x>>42 ^ x>>48 ^ x>>54 ^ x>>60) & 0x3f
 }
 
 var xNode = internal.MAC[:]
