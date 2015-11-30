@@ -20,7 +20,7 @@ import (
 //   |                         node (2-5)                            |
 //   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-var pid = byte(hash(uint64(os.Getpid()))) // 6-bit hash of os.Getpid()
+var pid = byte(hash(uint64(os.Getpid()))) // 6-bit hash of os.Getpid(), read only.
 
 // hash uint64 to a 6-bit integer value.
 func hash(x uint64) uint64 {
@@ -32,39 +32,39 @@ var xNode = internal.MAC[:]
 const xSequenceMask uint32 = 0x3FFF // 14bits
 
 var (
-	xMutex         sync.Mutex
-	xSequenceStart uint32 = rand.Uint32() & xSequenceMask
-	xLastTimestamp int64  = -1
-	xLastSequence  uint32 = xSequenceStart
+	gxMutex         sync.Mutex
+	gxSequenceStart uint32 = rand.Uint32() & xSequenceMask
+	gxLastTimestamp int64  = -1
+	gxLastSequence  uint32 = gxSequenceStart
 )
 
 // Newx returns a NONSTANDARD UUID(lower probability of conflict).
 func Newx() (uuid [16]byte) {
 	var (
 		timestamp = uuidTimestamp()
-		sequence  = xSequenceStart
+		sequence  = gxSequenceStart
 	)
 
-	xMutex.Lock() // Lock
+	gxMutex.Lock() // Lock
 	switch {
-	case timestamp > xLastTimestamp:
-		xLastTimestamp = timestamp
-		xLastSequence = sequence
-		xMutex.Unlock() // Unlock
-	case timestamp == xLastTimestamp:
-		sequence = (xLastSequence + 1) & xSequenceMask
-		if sequence == xSequenceStart {
+	case timestamp > gxLastTimestamp:
+		gxLastTimestamp = timestamp
+		gxLastSequence = sequence
+		gxMutex.Unlock() // Unlock
+	case timestamp == gxLastTimestamp:
+		sequence = (gxLastSequence + 1) & xSequenceMask
+		if sequence == gxSequenceStart {
 			timestamp = tillNext100nano(timestamp)
-			xLastTimestamp = timestamp
+			gxLastTimestamp = timestamp
 		}
-		xLastSequence = sequence
-		xMutex.Unlock() // Unlock
+		gxLastSequence = sequence
+		gxMutex.Unlock() // Unlock
 	default: // timestamp < xLastTimestamp
-		xSequenceStart = rand.Uint32() & xSequenceMask // NOTE
-		sequence = xSequenceStart
-		xLastTimestamp = timestamp
-		xLastSequence = sequence
-		xMutex.Unlock() // Unlock
+		gxSequenceStart = rand.Uint32() & xSequenceMask // NOTE
+		sequence = gxSequenceStart
+		gxLastTimestamp = timestamp
+		gxLastSequence = sequence
+		gxMutex.Unlock() // Unlock
 	}
 
 	// time_low

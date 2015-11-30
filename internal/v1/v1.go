@@ -24,39 +24,39 @@ var node = internal.MAC[:]
 const sequenceMask uint32 = 0x3FFF // 14bits
 
 var (
-	mutex         sync.Mutex
-	sequenceStart uint32 = rand.Uint32() & sequenceMask
-	lastTimestamp int64  = -1
-	lastSequence  uint32 = sequenceStart
+	gMutex         sync.Mutex
+	gSequenceStart uint32 = rand.Uint32() & sequenceMask
+	gLastTimestamp int64  = -1
+	gLastSequence  uint32 = gSequenceStart
 )
 
 // New returns a STANDARD version 1 UUID.
 func New() (uuid [16]byte) {
 	var (
 		timestamp = uuidTimestamp()
-		sequence  = sequenceStart
+		sequence  = gSequenceStart
 	)
 
-	mutex.Lock() // Lock
+	gMutex.Lock() // Lock
 	switch {
-	case timestamp > lastTimestamp:
-		lastTimestamp = timestamp
-		lastSequence = sequence
-		mutex.Unlock() // Unlock
-	case timestamp == lastTimestamp:
-		sequence = (lastSequence + 1) & sequenceMask
-		if sequence == sequenceStart {
+	case timestamp > gLastTimestamp:
+		gLastTimestamp = timestamp
+		gLastSequence = sequence
+		gMutex.Unlock() // Unlock
+	case timestamp == gLastTimestamp:
+		sequence = (gLastSequence + 1) & sequenceMask
+		if sequence == gSequenceStart {
 			timestamp = tillNext100nano(timestamp)
-			lastTimestamp = timestamp
+			gLastTimestamp = timestamp
 		}
-		lastSequence = sequence
-		mutex.Unlock() // Unlock
+		gLastSequence = sequence
+		gMutex.Unlock() // Unlock
 	default: // timestamp < lastTimestamp
-		sequenceStart = rand.Uint32() & sequenceMask // NOTE
-		sequence = sequenceStart
-		lastTimestamp = timestamp
-		lastSequence = sequence
-		mutex.Unlock() // Unlock
+		gSequenceStart = rand.Uint32() & sequenceMask // NOTE
+		sequence = gSequenceStart
+		gLastTimestamp = timestamp
+		gLastSequence = sequence
+		gMutex.Unlock() // Unlock
 	}
 
 	// time_low
