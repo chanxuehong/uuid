@@ -13,7 +13,8 @@ func HexEncode(uuid UUID) []byte {
 
 // Encode encodes UUID to "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" format.
 func Encode(uuid UUID) []byte {
-	buf := make([]byte, 36)
+	const encodedUUIDLen = 36
+	var buf [encodedUUIDLen]byte
 	hex.Encode(buf[:8], uuid[:4])
 	buf[8] = '-'
 	hex.Encode(buf[9:13], uuid[4:6])
@@ -23,7 +24,7 @@ func Encode(uuid UUID) []byte {
 	hex.Encode(buf[19:23], uuid[8:10])
 	buf[23] = '-'
 	hex.Encode(buf[24:], uuid[10:])
-	return buf
+	return buf[:]
 }
 
 var (
@@ -35,10 +36,12 @@ var (
 
 // Decode decodes data with "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" format into UUID.
 func Decode(data []byte) (uuid UUID, err error) {
-	if len(data) != 36 {
+	const encodedUUIDLen = 36
+	if len(data) != encodedUUIDLen {
 		err = errors.New("invalid UUID data")
 		return
 	}
+	_ = data[encodedUUIDLen-1]
 	if data[8] != '-' || data[13] != '-' || data[18] != '-' || data[23] != '-' {
 		err = errors.New("invalid UUID data")
 		return
